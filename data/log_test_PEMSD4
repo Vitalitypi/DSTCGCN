@@ -1,0 +1,15 @@
+Namespace(activation='GLU', batch_size=32, checkpoint='./garage/PEMSD4/Val_MAE_20.91_best_model.pth', column_wise=False, construct_type='connectivity', data='./data/processed/PEMS04/', first_layer_embedding_size=64, hidden_dims=[[64, 64, 64], [64, 64, 64], [64, 64, 64], [64, 64, 64]], history=12, horizon=12, in_dim=1, log_file='./data/log_test_PEMSD4', no_cuda=False, normalizer='std', num_of_vertices=307, out_layer_dim=128, sensors_distance='./data/PEMS04/PEMS04.csv', spatial_emb=True, strides=3, temporal_emb=True, use_mask=True)
+加载模型成功
+最好的验证模型在测试集上对 horizon: 1, Test MAE: 18.1266, Test MAPE: 0.1237, Test RMSE: 29.1170
+最好的验证模型在测试集上对 horizon: 2, Test MAE: 19.0697, Test MAPE: 0.1296, Test RMSE: 30.5185
+最好的验证模型在测试集上对 horizon: 3, Test MAE: 19.8027, Test MAPE: 0.1341, Test RMSE: 31.5812
+最好的验证模型在测试集上对 horizon: 4, Test MAE: 20.3495, Test MAPE: 0.1383, Test RMSE: 32.3714
+最好的验证模型在测试集上对 horizon: 5, Test MAE: 20.8529, Test MAPE: 0.1401, Test RMSE: 33.1341
+最好的验证模型在测试集上对 horizon: 6, Test MAE: 21.3053, Test MAPE: 0.1427, Test RMSE: 33.8380
+最好的验证模型在测试集上对 horizon: 7, Test MAE: 21.8823, Test MAPE: 0.1462, Test RMSE: 34.6973
+最好的验证模型在测试集上对 horizon: 8, Test MAE: 22.3830, Test MAPE: 0.1504, Test RMSE: 35.4513
+最好的验证模型在测试集上对 horizon: 9, Test MAE: 22.8608, Test MAPE: 0.1536, Test RMSE: 36.1533
+最好的验证模型在测试集上对 horizon: 10, Test MAE: 23.2887, Test MAPE: 0.1552, Test RMSE: 36.8004
+最好的验证模型在测试集上对 horizon: 11, Test MAE: 23.8038, Test MAPE: 0.1583, Test RMSE: 37.5135
+最好的验证模型在测试集上对 horizon: 12, Test MAE: 24.4747, Test MAPE: 0.1627, Test RMSE: 38.4610
+总平均测试结果, Test MAE: 21.5167, Test MAPE: 0.1446, Test RMSE: 34.1364

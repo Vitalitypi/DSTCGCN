@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 import os
-import pandas as pd
+# import pandas as pd
 
 
 def generate_graph_seq2seq_io_data(
