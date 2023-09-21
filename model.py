@@ -2,6 +2,29 @@ import torch
 import torch.nn.functional as F
 import torch.nn as nn
 
+class GatedTCN(nn.Module):
+    def __init__(self, in_channels, out_channels, kernel_size, dilation):
+        #Gated TCN
+        super().__init__()
+        self.filter_convs = nn.Conv2d(in_channels=in_channels,
+                                                   out_channels=out_channels,
+                                                   kernel_size=(1,kernel_size),dilation=dilation)
+        self.gate_convs = nn.Conv2d(in_channels=in_channels,
+                                                 out_channels=out_channels,
+                                                 kernel_size=(1,kernel_size), dilation=dilation)
+
+    def forward(self,x):
+        '''
+        input:  N*D*S
+        output: N*D*(S-kernel_size)
+        '''
+        residual = x
+        filter = self.filter_convs(residual)
+        filter = torch.tanh(filter)
+        gate = self.gate_convs(residual)
+        gate = torch.sigmoid(gate)
+        residual = filter*gate
+        return residual
 
 class gcn_operation(nn.Module):
     def __init__(self, adj, in_dim, out_dim, num_vertices, activation='GLU'):
@@ -152,6 +175,8 @@ class STSGCL(nn.Module):
         self.spatial_emb = spatial_emb
 
         self.STSGCMS = nn.ModuleList()
+        #Gated TCN
+        self.gtcn = GatedTCN(in_channels=in_dim,out_channels=in_dim,kernel_size=3,dilation=1)
         for i in range(self.history - self.strides + 1):
             self.STSGCMS.append(
                 STSGCM(
@@ -186,6 +211,10 @@ class STSGCL(nn.Module):
         :param mask: (N, N)
         :return: B, T-2, N, Cout
         """
+        #B C N T
+        residual = x.transpose(1,3)
+        #B C N (T-kernel+1)->B (T-kernel+1) N C
+        residual = self.gtcn(residual).transpose(1,3)
         if self.temporal_emb:
             x = x + self.temporal_embedding
 
@@ -211,7 +240,7 @@ class STSGCL(nn.Module):
 
         del need_concat, batch_size
 
-        return out
+        return out+residual
 
 
 class output_layer(nn.Module):
@@ -371,27 +400,12 @@ class STSGCN(nn.Module):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    #B C N T
+    x = torch.randn(1,64, 100, 12)
+    gtcn = GatedTCN(64, 64, 3, 1)
+    y = gtcn(x)
+    print(y.size())
 
 
 
