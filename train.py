@@ -22,6 +22,7 @@ config.read(config_file)
 parser = argparse.ArgumentParser(description='arguments')
 parser.add_argument('--no_cuda', action="store_true", help="没有GPU")
 parser.add_argument('--data', type=str, default=config['data']['data'], help='data path')
+parser.add_argument('--temporal_adj', type=str, default=config['data']['temporal_adj'], help='temporal_adj path')
 parser.add_argument('--sensors_distance', type=str, default=config['data']['sensors_distance'], help='节点距离文件')
 parser.add_argument('--column_wise', type=eval, default=config['data']['column_wise'],
                     help='是指列元素的级别上进行归一，否则是全样本取值')
@@ -77,7 +78,8 @@ def main():
                                id_filename=None)
     local_adj = construct_adj(A=adj, steps=args.strides)
     local_adj = torch.FloatTensor(local_adj)
-
+    temporal_adj = torch.load(args.temporal_adj)
+    print("temporal_adj:",temporal_adj.size())
     dataloader = load_dataset(dataset_dir=args.data,
                               normalizer=args.normalizer,
                               batch_size=args.batch_size,
@@ -103,6 +105,7 @@ def main():
     engine = trainer(args=args,
                      scaler=scaler,
                      adj=local_adj,
+                     temporal_adj=temporal_adj,
                      history=args.history,
                      num_of_vertices=args.num_of_vertices,
                      in_dim=args.in_dim,

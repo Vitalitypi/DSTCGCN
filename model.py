@@ -27,10 +27,11 @@ class GatedTCN(nn.Module):
         return residual
 
 class gcn_operation(nn.Module):
-    def __init__(self, adj, in_dim, out_dim, num_vertices, activation='GLU'):
+    def __init__(self, adj,temporal_adj, in_dim, out_dim, num_vertices, activation='GLU'):
         """
         图卷积模块
         :param adj: 邻接图
+        :param temporal_adj: 时间图
         :param in_dim: 输入维度
         :param out_dim: 输出维度
         :param num_vertices: 节点数量
@@ -38,6 +39,7 @@ class gcn_operation(nn.Module):
         """
         super(gcn_operation, self).__init__()
         self.adj = adj
+        self.temporal_adj = temporal_adj
         self.in_dim = in_dim
         self.out_dim = out_dim
         self.num_vertices = num_vertices
@@ -57,6 +59,11 @@ class gcn_operation(nn.Module):
         :return: (3*N, B, Cout)
         """
         adj = self.adj
+        N = x.size(0)//3
+        adj[:N,:N] = self.temporal_adj
+        adj[2*N:,2*N:] = self.temporal_adj
+        adj[2*N:,:N] = self.temporal_adj
+        adj[:N,2*N:] = self.temporal_adj
         if mask is not None:
             adj = adj.to(mask.device) * mask
 
@@ -76,9 +83,10 @@ class gcn_operation(nn.Module):
 
 
 class STSGCM(nn.Module):
-    def __init__(self, adj, in_dim, out_dims, num_of_vertices, activation='GLU'):
+    def __init__(self, adj,temporal_adj, in_dim, out_dims, num_of_vertices, activation='GLU'):
         """
         :param adj: 邻接矩阵
+        :param temporal_adj: 时间矩阵
         :param in_dim: 输入维度
         :param out_dims: list 各个图卷积的输出维度
         :param num_of_vertices: 节点数量
@@ -86,6 +94,7 @@ class STSGCM(nn.Module):
         """
         super(STSGCM, self).__init__()
         self.adj = adj
+        self.temporal_adj = temporal_adj
         self.in_dim = in_dim
         self.out_dims = out_dims
         self.num_of_vertices = num_of_vertices
@@ -96,6 +105,7 @@ class STSGCM(nn.Module):
         self.gcn_operations.append(
             gcn_operation(
                 adj=self.adj,
+                temporal_adj = self.temporal_adj,
                 in_dim=self.in_dim,
                 out_dim=self.out_dims[0],
                 num_vertices=self.num_of_vertices,
@@ -107,6 +117,7 @@ class STSGCM(nn.Module):
             self.gcn_operations.append(
                 gcn_operation(
                     adj=self.adj,
+                    temporal_adj = self.temporal_adj,
                     in_dim=self.out_dims[i-1],
                     out_dim=self.out_dims[i],
                     num_vertices=self.num_of_vertices,
@@ -143,6 +154,7 @@ class STSGCM(nn.Module):
 class STSGCL(nn.Module):
     def __init__(self,
                  adj,
+                 temporal_adj,
                  history,
                  num_of_vertices,
                  in_dim,
@@ -153,6 +165,7 @@ class STSGCL(nn.Module):
                  spatial_emb=True):
         """
         :param adj: 邻接矩阵
+        :param temporal_adj: 时间矩阵
         :param history: 输入时间步长
         :param in_dim: 输入维度
         :param out_dims: list 各个图卷积的输出维度
@@ -164,6 +177,7 @@ class STSGCL(nn.Module):
         """
         super(STSGCL, self).__init__()
         self.adj = adj
+        self.temporal_adj = temporal_adj
         self.strides = strides
         self.history = history
         self.in_dim = in_dim
@@ -181,6 +195,7 @@ class STSGCL(nn.Module):
             self.STSGCMS.append(
                 STSGCM(
                     adj=self.adj,
+                    temporal_adj = self.temporal_adj,
                     in_dim=self.in_dim,
                     out_dims=self.out_dims,
                     num_of_vertices=self.num_of_vertices,
@@ -285,12 +300,13 @@ class output_layer(nn.Module):
 
 
 class STSGCN(nn.Module):
-    def __init__(self, adj, history, num_of_vertices, in_dim, hidden_dims,
+    def __init__(self, adj,temporal_adj, history, num_of_vertices, in_dim, hidden_dims,
                  first_layer_embedding_size, out_layer_dim, activation='GLU', use_mask=True,
                  temporal_emb=True, spatial_emb=True, horizon=12, strides=3):
         """
 
         :param adj: local时空间矩阵
+        :param temporal_adj: 时间矩阵
         :param history:输入时间步长
         :param num_of_vertices:节点数量
         :param in_dim:输入维度
@@ -306,6 +322,7 @@ class STSGCN(nn.Module):
         """
         super(STSGCN, self).__init__()
         self.adj = adj
+        self.temporal_adj = temporal_adj
         self.num_of_vertices = num_of_vertices
         self.hidden_dims = hidden_dims
         self.out_layer_dim = out_layer_dim
@@ -322,6 +339,7 @@ class STSGCN(nn.Module):
         self.STSGCLS.append(
             STSGCL(
                 adj=self.adj,
+                temporal_adj = self.temporal_adj,
                 history=history,
                 num_of_vertices=self.num_of_vertices,
                 in_dim=first_layer_embedding_size,
@@ -342,6 +360,7 @@ class STSGCN(nn.Module):
             self.STSGCLS.append(
                 STSGCL(
                     adj=self.adj,
+                    temporal_adj = self.temporal_adj,
                     history=history,
                     num_of_vertices=self.num_of_vertices,
                     in_dim=in_dim,

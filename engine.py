@@ -5,7 +5,7 @@ import utils
 
 
 class trainer():
-    def __init__(self, args, scaler, adj, history, num_of_vertices,
+    def __init__(self, args, scaler, adj,temporal_adj, history, num_of_vertices,
                  in_dim, hidden_dims, first_layer_embedding_size, out_layer_dim,
                  log, lrate, device, activation='GLU', use_mask=True, max_grad_norm=5,
                  lr_decay=False, temporal_emb=True, spatial_emb=True, horizon=12, strides=3):
@@ -36,6 +36,7 @@ class trainer():
 
         self.model = STSGCN(
             adj=adj,
+            temporal_adj=temporal_adj,
             history=history,
             num_of_vertices=num_of_vertices,
             in_dim=in_dim,

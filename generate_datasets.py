@@ -2,7 +2,41 @@ import argparse
 import numpy as np
 import os
 # import pandas as pd
+import torch
+import time
+import einops
 
+def CostMatrix(x):
+    '''
+    Cost Matrix Calculation
+    input:N,T
+    output:N,N
+    '''
+    CMC = torch.zeros((x.size(0) + 1, x.size(0) + 1))
+    start = time.time()
+    for i in range(1, x.size(0) + 1):
+        for j in range(1, x.size(0) + 1):
+            xy = torch.sum(torch.mul(x[i - 1], x[j - 1]),dim=0)
+            xx = torch.sum(torch.mul(x[i - 1], x[i - 1]),dim=0)
+            yy = torch.sum(torch.mul(x[j - 1], x[j - 1]),dim=0)
+            dpq = torch.div(xy, torch.mul(torch.sqrt(xx), torch.sqrt(yy)))
+            CMC[i][j] = dpq + min(CMC[i - 1][j - 1], CMC[i - 1][j], CMC[i][j - 1])
+    end = time.time()
+    print(end - start)
+    CMC = CMC[1:, 1:]
+    return CMC
+def A_temporal(x,path):
+    #转为tensor
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    x = torch.tensor(x).to(device)
+    x = einops.rearrange(x, "T N C->N (T C)")
+    At = torch.zeros((x.size(0),x.size(0)))
+    CMC = CostMatrix(x)
+    for i in range(x.size(0)):
+            for j in range(i,x.size(0)):
+                At[i][j] = At[j][i] = CMC[i][j]
+    #保存到目录
+    torch.save(At,path+'A_temporal.pt')
 
 def generate_graph_seq2seq_io_data(
         data, x_offsets, y_offsets
@@ -38,7 +72,8 @@ def generate_train_val_test(args):
     """生成数据"""
     data_seq = np.load(args.traffic_df_filename)['data']
     # 交通数据 (sequence_length, num_of_vertices, num_of_features)
-
+    # 生成相似性矩阵
+    A_temporal(data_seq[:,:,0:1],args.output_dir)
     seq_length_x, seq_length_y = args.seq_length_x, args.seq_length_y
 
     x_offsets = np.arange(-(seq_length_x - 1), 1, 1)
@@ -81,8 +116,8 @@ def generate_train_val_test(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--output_dir', type=str, default="data/processed/PEMS08/", help="输出文件夹")
-    parser.add_argument('--traffic_df_filename', type=str, default="data/PEMS08/PEMS08.npz", help="数据集")
+    parser.add_argument('--output_dir', type=str, default="data/processed/PEMS04-1/", help="输出文件夹")
+    parser.add_argument('--traffic_df_filename', type=str, default="data/PEMS04/PEMS04.npz", help="数据集")
     parser.add_argument('--seq_length_x', type=int, default=12, help='输入序列长度')
     parser.add_argument('--seq_length_y', type=int, default=12, help='输出序列长度')
     parser.add_argument('--y_start', type=int, default=1, help='从第几天开始预测')

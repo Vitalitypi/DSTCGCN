@@ -40,4 +40,7 @@ PEMSD4_history_vaild_MAE.npy 和 PEMSD8_history_vaild_MAE.npy 是训练过程中
 ``` 
 
 
-
+* 疑问
+```
+1、STSGCM是先crop再max，与原文不一致
+```
