@@ -13,16 +13,19 @@ def CostMatrix(x):
     output:N,N
     '''
     CMC = torch.zeros((x.size(0) + 1, x.size(0) + 1))
-    start = time.time()
     for i in range(1, x.size(0) + 1):
-        for j in range(1, x.size(0) + 1):
+        arr = torch.zeros(CMC.size(0)-i)
+        for j in range(i, x.size(0) + 1):
             xy = torch.sum(torch.mul(x[i - 1], x[j - 1]),dim=0)
             xx = torch.sum(torch.mul(x[i - 1], x[i - 1]),dim=0)
             yy = torch.sum(torch.mul(x[j - 1], x[j - 1]),dim=0)
             dpq = torch.div(xy, torch.mul(torch.sqrt(xx), torch.sqrt(yy)))
-            CMC[i][j] = dpq + min(CMC[i - 1][j - 1], CMC[i - 1][j], CMC[i][j - 1])
-    end = time.time()
-    print(end - start)
+            # CMC[i][j] = CMC[j][i] = dpq + min(CMC[i - 1][j - 1], CMC[i - 1][j], CMC[i][j - 1])
+            arr[j-i] = dpq + min(CMC[i - 1][j - 1], CMC[i - 1][j], CMC[i][j - 1])
+        max_values = torch.max(arr)
+        arr = torch.div(arr, max_values)
+        for j in range(i, x.size(0) + 1):
+            CMC[i][j] = CMC[j][i] = arr[j-i]
     CMC = CMC[1:, 1:]
     return CMC
 def A_temporal(x,path):

@@ -26,6 +26,7 @@ def CostMatrix(x):
         for j in range(i, x.size(0) + 1):
             CMC[i][j] = CMC[j][i] = arr[j-i]
     CMC = CMC[1:, 1:]
+    print(CMC)
     return CMC
 def A_temporal(x):
     #转为tensor
