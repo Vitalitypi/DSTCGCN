@@ -36,6 +36,8 @@ def A_temporal(x,path):
             for j in range(i,x.size(0)):
                 At[i][j] = At[j][i] = CMC[i][j]
     #保存到目录
+    max_values, _ = torch.max(At, dim=1)
+    At = torch.div(At, max_values.unsqueeze(1))
     torch.save(At,path+'A_temporal.pt')
 
 def generate_graph_seq2seq_io_data(
@@ -73,7 +75,8 @@ def generate_train_val_test(args):
     data_seq = np.load(args.traffic_df_filename)['data']
     # 交通数据 (sequence_length, num_of_vertices, num_of_features)
     # 生成相似性矩阵
-    A_temporal(data_seq[:,:,0:1],args.output_dir)
+    end = round((data_seq.shape[0]-args.seq_length_x-args.seq_length_y+1)*0.6)+args.seq_length_x+args.seq_length_x-1
+    A_temporal(data_seq[:end,:,0:1],args.output_dir)
     seq_length_x, seq_length_y = args.seq_length_x, args.seq_length_y
 
     x_offsets = np.arange(-(seq_length_x - 1), 1, 1)

@@ -1,15 +1,22 @@
 Namespace(activation='GLU', batch_size=32, checkpoint='./garage/PEMSD4/Val_MAE_20.91_best_model.pth', column_wise=False, construct_type='connectivity', data='./data/processed/PEMS04/', first_layer_embedding_size=64, hidden_dims=[[64, 64, 64], [64, 64, 64], [64, 64, 64], [64, 64, 64]], history=12, horizon=12, in_dim=1, log_file='./data/log_test_PEMSD4', no_cuda=False, normalizer='std', num_of_vertices=307, out_layer_dim=128, sensors_distance='./data/PEMS04/PEMS04.csv', spatial_emb=True, strides=3, temporal_emb=True, use_mask=True)
-¼ÓÔØÄ£ĞÍ³É¹¦
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 1, Test MAE: 18.1266, Test MAPE: 0.1237, Test RMSE: 29.1170
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 2, Test MAE: 19.0697, Test MAPE: 0.1296, Test RMSE: 30.5185
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 3, Test MAE: 19.8027, Test MAPE: 0.1341, Test RMSE: 31.5812
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 4, Test MAE: 20.3495, Test MAPE: 0.1383, Test RMSE: 32.3714
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 5, Test MAE: 20.8529, Test MAPE: 0.1401, Test RMSE: 33.1341
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 6, Test MAE: 21.3053, Test MAPE: 0.1427, Test RMSE: 33.8380
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 7, Test MAE: 21.8823, Test MAPE: 0.1462, Test RMSE: 34.6973
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 8, Test MAE: 22.3830, Test MAPE: 0.1504, Test RMSE: 35.4513
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 9, Test MAE: 22.8608, Test MAPE: 0.1536, Test RMSE: 36.1533
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 10, Test MAE: 23.2887, Test MAPE: 0.1552, Test RMSE: 36.8004
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 11, Test MAE: 23.8038, Test MAPE: 0.1583, Test RMSE: 37.5135
-×îºÃµÄÑéÖ¤Ä£ĞÍÔÚ²âÊÔ¼¯ÉÏ¶Ô horizon: 12, Test MAE: 24.4747, Test MAPE: 0.1627, Test RMSE: 38.4610
-×ÜÆ½¾ù²âÊÔ½á¹û, Test MAE: 21.5167, Test MAPE: 0.1446, Test RMSE: 34.1364
+ï¿½ï¿½ï¿½ï¿½Ä£ï¿½Í³É¹ï¿½
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 1, Test MAE: 18.1266, Test MAPE: 0.1237, Test RMSE: 29.1170
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 2, Test MAE: 19.0697, Test MAPE: 0.1296, Test RMSE: 30.5185
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 3, Test MAE: 19.8027, Test MAPE: 0.1341, Test RMSE: 31.5812
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 4, Test MAE: 20.3495, Test MAPE: 0.1383, Test RMSE: 32.3714
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 5, Test MAE: 20.8529, Test MAPE: 0.1401, Test RMSE: 33.1341
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 6, Test MAE: 21.3053, Test MAPE: 0.1427, Test RMSE: 33.8380
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 7, Test MAE: 21.8823, Test MAPE: 0.1462, Test RMSE: 34.6973
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 8, Test MAE: 22.3830, Test MAPE: 0.1504, Test RMSE: 35.4513
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 9, Test MAE: 22.8608, Test MAPE: 0.1536, Test RMSE: 36.1533
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 10, Test MAE: 23.2887, Test MAPE: 0.1552, Test RMSE: 36.8004
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 11, Test MAE: 23.8038, Test MAPE: 0.1583, Test RMSE: 37.5135
+ï¿½ï¿½Ãµï¿½ï¿½ï¿½Ö¤Ä£ï¿½ï¿½ï¿½Ú²ï¿½ï¿½Ô¼ï¿½ï¿½Ï¶ï¿½ horizon: 12, Test MAE: 24.4747, Test MAPE: 0.1627, Test RMSE: 38.4610
+ï¿½ï¿½Æ½ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½, Test MAE: 21.5167, Test MAPE: 0.1446, Test RMSE: 34.1364
+
+baselineï¼š
+æœ€å¥½çš„éªŒè¯æ¨¡å‹åœ¨æµ‹è¯•é›†ä¸Šå¯¹ horizon: 12, Test MAE: 24.4747, Test MAPE: 0.1627, Test RMSE: 38.4610
+ä½¿ç”¨éå¯¹ç§°ç›¸ä¼¼æ€§çŸ©é˜µ(æ‰€æœ‰æ—¶é—´é•¿åº¦ï¼‰ã€ä½¿ç”¨Gated Temporal Convolution Networkï¼š
+æœ€å¥½çš„éªŒè¯æ¨¡å‹åœ¨æµ‹è¯•é›†ä¸Šå¯¹ horizon: 12, Test MAE: 21.4634, Test MAPE: 0.1391, Test RMSE: 34.8406
+ä½¿ç”¨éå¯¹ç§°ç›¸ä¼¼æ€§çŸ©é˜µ(æ‰€æœ‰æ—¶é—´é•¿åº¦ï¼‰ã€ä¸ä½¿ç”¨Gated Temporal Convolution Networkï¼š
+æœ€å¥½çš„éªŒè¯æ¨¡å‹åœ¨æµ‹è¯•é›†ä¸Šå¯¹ horizon: 12, Test MAE: 23.3059, Test MAPE: 0.1533, Test RMSE: 37.6723
