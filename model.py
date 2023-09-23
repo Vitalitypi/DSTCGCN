@@ -150,6 +150,29 @@ class STSGCM(nn.Module):
 
         return out
 
+class GRUCell(nn.Module):
+    def __init__(self, input_size, hidden_size):
+        super(GRUCell, self).__init__()
+        self.input_size = input_size
+        self.hidden_size = hidden_size
+
+        self.reset_gate = nn.Linear(hidden_size*2, hidden_size)
+        self.update_gate = nn.Linear(input_size*2, hidden_size)
+        self.new_memory = nn.Linear(input_size*2, hidden_size)
+        self.output_gate = nn.Linear(hidden_size, input_size)
+    def forward(self, input, hidden):
+        combined = torch.cat((input, hidden), dim=2)
+        reset = torch.sigmoid(self.reset_gate(combined))
+        update = torch.sigmoid(self.update_gate(combined))
+        combined_new = torch.cat((input, reset * hidden), dim=2)
+        new_memory = torch.tanh(self.new_memory(combined_new))#h'
+
+        output = update * hidden + (1 - update) * new_memory
+        yt = torch.sigmoid(self.output_gate(output))
+        return output,yt
+
+    def init_hidden(self, batch_size,num_size):
+        return torch.zeros(batch_size,num_size, self.hidden_size)
 
 class STSGCL(nn.Module):
     def __init__(self,
@@ -190,7 +213,8 @@ class STSGCL(nn.Module):
 
         self.STSGCMS = nn.ModuleList()
         #Gated TCN
-        self.gtcn = GatedTCN(in_channels=in_dim,out_channels=in_dim,kernel_size=3,dilation=1)
+        # self.gtcn = GatedTCN(in_channels=in_dim,out_channels=in_dim,kernel_size=3,dilation=1)
+        self.gru = GRUCell(self.in_dim, self.in_dim)
         for i in range(self.history - self.strides + 1):
             self.STSGCMS.append(
                 STSGCM(
@@ -227,9 +251,7 @@ class STSGCL(nn.Module):
         :return: B, T-2, N, Cout
         """
         #B C N T
-        residual = x.transpose(1,3)
-        #B C N (T-kernel+1)->B (T-kernel+1) N C
-        residual = self.gtcn(residual).transpose(1,3)
+
         if self.temporal_emb:
             x = x + self.temporal_embedding
 
@@ -253,6 +275,17 @@ class STSGCL(nn.Module):
 
         out = torch.cat(need_concat, dim=1)  # (B, T-2, N, Cout)
 
+        residual = None
+        h0 = self.gru.init_hidden(batch_size,out.size(2)).to(x.device)
+        #B C N (T-kernel+1)->B (T-kernel+1) N C
+        # residual = self.gtcn(residual).transpose(1,3)
+        for i in range(out.size(1)):
+            gru,h0 = self.gru(out[:,i,:,:],h0)
+            gru = torch.unsqueeze(gru, 1)
+            if residual is not None:
+                residual = torch.cat((residual,gru),dim=1)
+            else:
+                residual = gru
         del need_concat, batch_size
 
         return out+residual
@@ -420,11 +453,16 @@ class STSGCN(nn.Module):
 
 
 if __name__ == "__main__":
-    #B C N T
-    x = torch.randn(1,64, 100, 12)
-    gtcn = GatedTCN(64, 64, 3, 1)
-    y = gtcn(x)
-    print(y.size())
+    #x: (3N, B, Cin)
+    #将数据进行切分
+    x = torch.randn(3,4,2,1)#T N B C
+    x = torch.reshape(x, shape=[2, 3*4, 1]).permute(1, 0, 2)#B TN C->TN B C
+    GRUs = [nn.GRU(1, 1, 1),nn.GRU(1, 1, 1)]
+    seqs = torch.reshape(x, shape=[3,-1, x.size(0)//3, 1])#TN B C -> T B N C
+    print(seqs.size())
+    _,h0 = GRUs[0](seqs[1],seqs[0])
+    gru,_ = GRUs[1](seqs[2],h0)
+    print(gru.size())
 
 
 
