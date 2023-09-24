@@ -81,7 +81,19 @@ class gcn_operation(nn.Module):
         elif self.activation == 'relu':
             return torch.relu(self.FC(x))  # 3*N, B, Cout
 
+class GlobalCorrelationLearning(nn.Module):
+    def __init__(self):
+        super(GlobalCorrelationLearning, self).__init__()
 
+        pass
+    def forward(self):
+        '''
+        学习全局特征
+        input:B,3,N,C
+        output:B,1,N,C
+        '''
+
+        pass
 class STSGCM(nn.Module):
     def __init__(self, adj,temporal_adj, in_dim, out_dims, num_of_vertices, activation='GLU'):
         """
@@ -101,7 +113,7 @@ class STSGCM(nn.Module):
         self.activation = activation
 
         self.gcn_operations = nn.ModuleList()
-
+        self.gru = GRUCell(self.in_dim, self.in_dim)
         self.gcn_operations.append(
             gcn_operation(
                 adj=self.adj,
@@ -127,12 +139,20 @@ class STSGCM(nn.Module):
 
     def forward(self, x, mask=None):
         """
-        :param x: (3N, B, Cin)
+        :param x: (3N, B, Cin)#B,3,N,C
         :param mask: (3N, 3N)
         :return: (N, B, Cout)
         """
         need_concat = []
-
+        h0 = self.gru.init_hidden(x.size(0),x.size(2)).to(x.device)
+        residual = h0
+        for i in range(x.size(1)):
+            yt,h0 = self.gru(x[:,i,:,:],h0)
+            if i==x.size(1)-1:
+                residual = yt.permute(1,0,2)
+        print("gru:",residual)
+        # t = torch.reshape(t, shape=[batch_size, self.strides * self.num_of_vertices, self.in_dim])
+        x = torch.reshape(x, shape=[x.size(0), -1, self.in_dim]).permute(1, 0, 2)
         for i in range(len(self.out_dims)):
             x = self.gcn_operations[i](x, mask)
             need_concat.append(x)
@@ -148,7 +168,7 @@ class STSGCM(nn.Module):
 
         del need_concat
 
-        return out
+        return out+residual
 
 class GRUCell(nn.Module):
     def __init__(self, input_size, hidden_size):
@@ -213,8 +233,7 @@ class STSGCL(nn.Module):
 
         self.STSGCMS = nn.ModuleList()
         #Gated TCN
-        # self.gtcn = GatedTCN(in_channels=in_dim,out_channels=in_dim,kernel_size=3,dilation=1)
-        self.gru = GRUCell(self.in_dim, self.in_dim)
+        self.gtcn = GatedTCN(in_channels=in_dim,out_channels=in_dim,kernel_size=3,dilation=1)
         for i in range(self.history - self.strides + 1):
             self.STSGCMS.append(
                 STSGCM(
@@ -251,7 +270,9 @@ class STSGCL(nn.Module):
         :return: B, T-2, N, Cout
         """
         #B C N T
-
+        residual = x.transpose(1,3)
+        residual = self.gtcn(residual).transpose(1,3)
+        print("residual:",residual)
         if self.temporal_emb:
             x = x + self.temporal_embedding
 
@@ -259,15 +280,13 @@ class STSGCL(nn.Module):
             x = x + self.spatial_embedding
 
         need_concat = []
-        batch_size = x.shape[0]
 
         for i in range(self.history - self.strides + 1):
             t = x[:, i: i+self.strides, :, :]  # (B, 3, N, Cin)
 
-            t = torch.reshape(t, shape=[batch_size, self.strides * self.num_of_vertices, self.in_dim])
             # (B, 3*N, Cin)
 
-            t = self.STSGCMS[i](t.permute(1, 0, 2), mask)  # (3*N, B, Cin) -> (N, B, Cout)
+            t = self.STSGCMS[i](t, mask)  # (B,3,N,Cin) -> (N, B, Cout)
 
             t = torch.unsqueeze(t.permute(1, 0, 2), dim=1)  # (N, B, Cout) -> (B, N, Cout) ->(B, 1, N, Cout)
 
@@ -275,18 +294,11 @@ class STSGCL(nn.Module):
 
         out = torch.cat(need_concat, dim=1)  # (B, T-2, N, Cout)
 
-        residual = None
-        h0 = self.gru.init_hidden(batch_size,out.size(2)).to(x.device)
+
         #B C N (T-kernel+1)->B (T-kernel+1) N C
-        # residual = self.gtcn(residual).transpose(1,3)
-        for i in range(out.size(1)):
-            gru,h0 = self.gru(out[:,i,:,:],h0)
-            gru = torch.unsqueeze(gru, 1)
-            if residual is not None:
-                residual = torch.cat((residual,gru),dim=1)
-            else:
-                residual = gru
-        del need_concat, batch_size
+
+
+        del need_concat
 
         return out+residual
 

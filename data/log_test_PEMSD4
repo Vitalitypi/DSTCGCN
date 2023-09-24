@@ -24,3 +24,7 @@ baseline：
 最好的验证模型在测试集上对 horizon: 12, Test MAE: 21.9844, Test MAPE: 0.1451, Test RMSE: 35.5642
 使用对称相似性矩阵(0-1)(训练时间长度）、使用Gated Temporal Convolution Network：
 最好的验证模型在测试集上对 horizon: 12, Test MAE: 22.2845, Test MAPE: 0.1442, Test RMSE: 35.9724
+使用对称相似性矩阵(0-1)(训练时间长度）、使用Gated Temporal Convolution Network、GRU：
+最好的验证模型在测试集上对 horizon: 12, Test MAE: 22.3414, Test MAPE: 0.1475, Test RMSE: 35.7761
+使用对称相似性矩阵(0-1)(训练时间长度）、使用分块batch、GRU：
+最好的验证模型在测试集上对 horizon: 12, Test MAE: 21.8668, Test MAPE: 0.1505, Test RMSE: 34.2598

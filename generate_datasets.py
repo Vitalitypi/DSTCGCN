@@ -60,7 +60,7 @@ def generate_graph_seq2seq_io_data(
     min_t = abs(min(x_offsets))  # 11
     max_t = abs(num_samples - abs(max(y_offsets)))  # num_samples - 12
 
-    for t in range(min_t, max_t):
+    for t in range(min_t, max_t,len(x_offsets)*2):
         x_t = data[t + x_offsets, ...]  # t = 11时, [0,1,2,...,11]
         y_t = data[t + y_offsets, ...]  # t = 11时, [12,13,...,23]
 
@@ -79,7 +79,7 @@ def generate_train_val_test(args):
     # 交通数据 (sequence_length, num_of_vertices, num_of_features)
     # 生成相似性矩阵
     end = round((data_seq.shape[0]-args.seq_length_x-args.seq_length_y+1)*0.6)+args.seq_length_x+args.seq_length_x-1
-    A_temporal(data_seq[:end,:,0:1],args.output_dir)
+    # A_temporal(data_seq[:end,:,0:1],args.output_dir)
     seq_length_x, seq_length_y = args.seq_length_x, args.seq_length_y
 
     x_offsets = np.arange(-(seq_length_x - 1), 1, 1)
