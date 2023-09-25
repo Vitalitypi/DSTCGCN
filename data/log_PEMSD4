@@ -7,6 +7,6 @@ testX:   torch.Size([3424, 12, 307, 1])		testY:   torch.Size([3424, 12, 307, 1])
 mean:   207.2273		std:   156.4777
 data loaded!
 Applying learning rate decay.
-模型可训练参数: 2,933,245
-GPU使用情况:11.771392
+模型可训练参数: 3,049,725
+GPU使用情况:12.24448
 compiling model...

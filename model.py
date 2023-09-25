@@ -82,18 +82,31 @@ class gcn_operation(nn.Module):
             return torch.relu(self.FC(x))  # 3*N, B, Cout
 
 class GlobalCorrelationLearning(nn.Module):
-    def __init__(self):
+    def __init__(self,input_size,output_size):
         super(GlobalCorrelationLearning, self).__init__()
-
-        pass
-    def forward(self):
+        self.fc1 = nn.Linear(input_size, output_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(output_size, output_size)
+    def forward(self,hidden,adj):
         '''
-        学习全局特征
-        input:B,3,N,C
-        output:B,1,N,C
+        学习全局动态特征
+        input:
+            hidden:B,N,C
+            adj:N,N
+        output:N,B,C
         '''
+        hidden = hidden.permute(1,0,2)#N B C
+        out = torch.einsum('nm, mbc->nbc', adj.to(hidden.device), hidden)#nbc
+        hidden = self.fc1(hidden)#nbc
+        hidden = self.relu(hidden)#nbc
+        hidden = self.fc2(hidden)#nbc
+        out = torch.tanh(out)*torch.sigmoid(hidden)
+        #正则化
+        mean = torch.mean(out)
+        std = torch.std(out)
+        out = (out-mean)/std
+        return out
 
-        pass
 class STSGCM(nn.Module):
     def __init__(self, adj,temporal_adj, in_dim, out_dims, num_of_vertices, activation='GLU'):
         """
@@ -111,7 +124,7 @@ class STSGCM(nn.Module):
         self.out_dims = out_dims
         self.num_of_vertices = num_of_vertices
         self.activation = activation
-
+        self.gcl = GlobalCorrelationLearning(in_dim,in_dim)
         self.gcn_operations = nn.ModuleList()
         self.gru = GRUCell(self.in_dim, self.in_dim)
         self.gcn_operations.append(
@@ -145,12 +158,13 @@ class STSGCM(nn.Module):
         """
         need_concat = []
         h0 = self.gru.init_hidden(x.size(0),x.size(2)).to(x.device)
-        residual = h0
+        hidden = h0
         for i in range(x.size(1)):
-            yt,h0 = self.gru(x[:,i,:,:],h0)
+            _,h0 = self.gru(x[:,i,:,:],h0)
             if i==x.size(1)-1:
-                residual = yt.permute(1,0,2)
-        print("gru:",residual)
+                hidden = h0
+        residual = self.gcl(hidden,self.temporal_adj)
+        print(residual.size())
         # t = torch.reshape(t, shape=[batch_size, self.strides * self.num_of_vertices, self.in_dim])
         x = torch.reshape(x, shape=[x.size(0), -1, self.in_dim]).permute(1, 0, 2)
         for i in range(len(self.out_dims)):
@@ -272,7 +286,6 @@ class STSGCL(nn.Module):
         #B C N T
         residual = x.transpose(1,3)
         residual = self.gtcn(residual).transpose(1,3)
-        print("residual:",residual)
         if self.temporal_emb:
             x = x + self.temporal_embedding
 
