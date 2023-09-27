@@ -1,33 +1,21 @@
-import torch
+import pandas as pd
+
+from utils.timefeatures import time_features
+
+# start_date = '2016-07-01 02:00:00'
+# end_date = '2017-11-24 17:00:00'
+# # freq = '5T'  # 每小时生成一个时间点
+# #
+# # date_range = pd.date_range(start=start_date, freq=freq,periods=12)
+# # print(date_range[-1])
+# date_range = pd.date_range(start=start_date,end=end_date, freq='H')
+# data_stamp = time_features(date_range, freq='T')
+# data_stamp = data_stamp.transpose(1, 0)
+# print(data_stamp[478:488])
+
 import torch.nn as nn
 
-class GRU(nn.Module):
-    def __init__(self, input_size, hidden_size):
-        super(GRU, self).__init__()
-        self.input_size = input_size
-        self.hidden_size = hidden_size
-
-        self.reset_gate = nn.Linear(hidden_size*2, hidden_size)
-        self.update_gate = nn.Linear(input_size*2, hidden_size)
-        self.new_memory = nn.Linear(input_size*2, hidden_size)
-        self.output_gate = nn.Linear(hidden_size, input_size)
-    def forward(self, input, hidden):
-        combined = torch.cat((input, hidden), dim=2)
-        reset = torch.sigmoid(self.reset_gate(combined))
-        update = torch.sigmoid(self.update_gate(combined))
-        combined_new = torch.cat((input, reset * hidden), dim=2)
-        new_memory = torch.tanh(self.new_memory(combined_new))#h'
-
-        output = update * hidden + (1 - update) * new_memory
-        yt = torch.sigmoid(self.output_gate(output))
-        return output,yt
-
-    def init_hidden(self, batch_size,num_size):
-        return torch.zeros(batch_size,num_size, self.hidden_size)
-
-rnn = GRU(64, 64)
-input = torch.randn(32, 307, 64)
-h0 = torch.randn(32, 307, 64)
-output, hn = rnn(input, h0)
-print(output.size(),hn.size())
-# torch.zeros()
+import torch,einops
+x = torch.ones((4,8,3,4))
+y = torch.sum(x,dim=-1)
+print(x,y)

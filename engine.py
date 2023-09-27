@@ -1,7 +1,11 @@
 import torch
 import torch.optim as optim
+from torch import nn
+
 from model import *
-import utils
+from model.SCGNN import SCGNN
+from utils import utils
+from model.STSGCN import STSGCN
 
 
 class trainer():
@@ -50,7 +54,7 @@ class trainer():
             horizon=horizon,
             strides=strides
         )
-
+        self.model = SCGNN(adj,temporal_adj,num_of_vertices,in_dim=1,out_dims=[4, 4, 4],first_layer_embedding_size=4)
         if torch.cuda.device_count() > 1:
             self.model = nn.DataParallel(self.model)
 
