@@ -5,23 +5,20 @@ import torch.nn as nn
 class GraphOperation(nn.Module):
     def __init__(self,num_points,in_dim):
         super().__init__()
-        self.GCNs = nn.ModuleList()
-        for i in range(num_points):
-            self.GCNs.append(nn.Linear(in_dim, in_dim, bias=True))
+        self.GCN = nn.Linear(in_dim, in_dim, bias=True)
+        # for i in range(num_points):
+        #     self.GCNs.append(nn.Linear(in_dim, in_dim, bias=True))
     def forward(self,R):
         '''
         input:
             R:b,c4,n,n
         output:b,c4,n,1
         '''
-        b,c4,n = R.size(0),R.size(1),R.size(2)
         mx,_ = torch.max(R,dim=1)
         A = torch.relu(torch.tanh(mx))#b,n,n
         # 进行图卷积操作
-        Fg = torch.zeros(b,c4,n)
-        for k in range(n):
-            x = torch.einsum('bcn, bn->bc', R[:,:,:,k], A[:,k,:])
-            Fg[:,:,k] = self.GCNs[k](x)
+        x = torch.einsum('bcnk, bkn->bck', R, A)
+        Fg = self.GCN(x.permute(0,2,1)).permute(0,2,1)
         Fg = Fg.unsqueeze(-1)
         return Fg
 
@@ -41,6 +38,8 @@ def RelationalFeatureExtraction(S,F4):
             for j in range(l4):
                 rk+=Se[:,k,:,:,j]*F4[:,:,:,j]
             R[:,:,:,k] = rk
+        R_ = torch.einsum('bkcmj,bcmj->bcmk', Se, F4)
+        print(R,R_)
         return R
 
 class SpatioTemporalCorrelationComputation(nn.Module):

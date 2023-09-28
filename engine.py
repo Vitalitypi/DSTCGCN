@@ -6,7 +6,7 @@ from model import *
 from model.SCGNN import SCGNN
 from utils import utils
 from model.STSGCN import STSGCN
-
+from model.ESGCN import ESGCN
 
 class trainer():
     def __init__(self, args, scaler, adj,temporal_adj, history, num_of_vertices,
@@ -54,7 +54,9 @@ class trainer():
             horizon=horizon,
             strides=strides
         )
-        self.model = SCGNN(adj,temporal_adj,num_of_vertices,in_dim=1,out_dims=[4, 4, 4],first_layer_embedding_size=4)
+        # self.model = SCGNN(adj,temporal_adj,num_of_vertices,in_dim=1,out_dims=[4, 4, 4],first_layer_embedding_size=4)
+        num_points,hidden,seq_length,out_dim = 307,4,12,1
+        self.model = ESGCN(num_points,hidden,seq_length,out_dim)
         if torch.cuda.device_count() > 1:
             self.model = nn.DataParallel(self.model)
 
