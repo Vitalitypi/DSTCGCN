@@ -16,6 +16,8 @@ from utils.timefeatures import time_features
 import torch.nn as nn
 
 import torch,einops
-x = torch.ones((4,8,3,4))
-y = torch.sum(x,dim=-1)
-print(x,y)
+b,c,n,t = 8,3,4,2
+x1 = torch.ones(1,2,3,3)
+x2 = torch.ones(1,2,3,2)
+print(x1,x2)
+print(x1+x2)
